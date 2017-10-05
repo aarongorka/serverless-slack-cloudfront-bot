@@ -19,6 +19,7 @@ var/
 # Serverless directories
 .serverless
 .env*
+!.env.template
 node_modules/
 vendored/
 venv/
