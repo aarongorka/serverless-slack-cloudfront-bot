@@ -97,6 +97,8 @@ def respond(event, context):
     logging.debug(json.dumps({'response_url': response_url}))
 
     try:
+        user_id = body['user_id'][0]
+        username = body['username'][0]
         selected_url = body['text'][0]
         urlparse(selected_url)
     except KeyError:
@@ -114,19 +116,22 @@ def respond(event, context):
 
     data = {
         "selected_url": selected_url,
-        "response_url": response_url
+        "response_url": response_url,
+        "username": username,
+        "user_id": user_id
     }
     handler = os.environ['INVALIDATE_HANDLER']
 
-    response = invoke_handler(urlencode(data), handler, correlation_id)
+    response = invoke_handler(data, handler, correlation_id)
     logging.debug(json.dumps({'body': body}))
     response = {
         "statusCode": 200,
-        "body": json.dumps({"text": response}),
+        "body": json.dumps({"text": response, "response_type": "in_channel"}),
         'headers': {
             'Content-Type': 'application/json',
         }
     }
+    logging.info(json.dumps({'response': response}))
     return response
 
 
@@ -138,7 +143,7 @@ def invoke_handler(data, handler, correlation_id):
         resp = client.invoke(
             FunctionName=handler,
             InvocationType='Event',
-            Payload=json.dumps(data)
+            Payload=json.dumps(urlencode(data))
         )
         payload = resp['Payload'].read()
     except:
@@ -146,7 +151,7 @@ def invoke_handler(data, handler, correlation_id):
         return "Something went wrong."
     else:
         logging.info(json.dumps({'action': 'invoke handler', 'status': 'success', 'handler': handler}))
-    return "Request received..."
+    return "Request to invalidate {} received from {}...".format(data['selected_url'], data['username'])
 
 
 def get_correlation_id(body=None, payload=None, event=None):
