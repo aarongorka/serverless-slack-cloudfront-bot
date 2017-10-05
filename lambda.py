@@ -54,9 +54,9 @@ def post_message(message, response_url, correlation_id):
 
     try:
         response = json.loads(r.text)
-        logging.debug(json.dumps({'action': 'post snippet', 'status': 'success', 'location': location, 'response': response}))
+        logging.debug(json.dumps({'action': 'post message', 'status': 'success', 'response': response}))
     except json.decoder.JSONDecodeError:
-        logging.debug(json.dumps({'action': 'post snippet', 'status': 'success', 'location': location, 'response': r.text}))
+        logging.debug(json.dumps({'action': 'post message', 'status': 'success', 'response': r.text}))
     except:
         pass
 
@@ -146,7 +146,7 @@ def invoke_handler(data, handler, correlation_id):
         )
         payload = resp['Payload'].read()
     except:
-        logging.exception(json.dumps({'action': 'post snippet', 'status': 'failed', 'data': data, 'handler': handler}))
+        logging.exception(json.dumps({'action': 'post message', 'status': 'failed', 'data': data, 'handler': handler}))
         return "Something went wrong."
     else:
         logging.info(json.dumps({'action': 'invoke handler', 'status': 'success', 'handler': handler}))
