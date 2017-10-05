@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import print_function
-
 import boto3
 import time
 import os
@@ -14,7 +12,6 @@ from urllib.parse import urlencode, quote_plus
 import botocore
 import logging
 import aws_lambda_logging
-from pprint import pprint
 import requests
 
 aws_lambda_logging.setup(level=os.environ.get('LOGLEVEL', 'INFO'), env=os.environ.get('ENV'))
@@ -22,8 +19,7 @@ aws_lambda_logging.setup(level=os.environ.get('LOGLEVEL', 'INFO'), env=os.enviro
 
 
 def invalidate(event, context):
-    pprint(event)
-    print(parse_qs(event))
+    logging.info(json.dumps({'event': event}))
     response_url = parse_qs(event)['response_url'][0]
     selected_url = parse_qs(event)['selected_url'][0]
     logging.debug(json.dumps({'response_url': response_url, "selected_url": selected_url}))
