@@ -1,0 +1,2 @@
+aws_lambda_logging==0.0.20
+requests==2.18.4
