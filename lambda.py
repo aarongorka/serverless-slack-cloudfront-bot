@@ -188,7 +188,7 @@ def get_distributions(session):
         logging.exception(json.dumps({'action': 'list_distributions', 'status': 'failed'}))
         return None
     try:
-        logging.info(json.dumps({'action': 'getting distributions', 'distributions': dists['DistributionList']['Items']}))
+        logging.info(json.dumps({'action': 'getting distributions', 'distributions': '{}'.format(dists['DistributionList']['Items'])}))
     except KeyError:
         return None
     return dists['DistributionList']['Items']
