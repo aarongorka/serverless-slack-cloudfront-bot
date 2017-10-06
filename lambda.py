@@ -31,6 +31,7 @@ def invalidate(event, context):
     try:
         message = check_accounts_and_invalidate(accounts, hostname, path, correlation_id)
     except:
+        logging.exception(json.dumps({'action': 'invalidate', 'status': 'failed'}))
         message = "An unknown error occurred, please check the logs."
         pass
     post_message(message, response_url, correlation_id)
@@ -38,7 +39,8 @@ def invalidate(event, context):
 
 def post_message(message, response_url, correlation_id):
     data = {
-        "text": message
+        "text": message,
+        "response_type": "in_channel"
     }
     try:
         r = requests.post(response_url, data=json.dumps(data), timeout=5, headers={'Correlation-Id': correlation_id, 'content-type': 'application/json'})
