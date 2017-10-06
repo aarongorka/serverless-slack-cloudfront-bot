@@ -98,7 +98,7 @@ def respond(event, context):
 
     try:
         user_id = body['user_id'][0]
-        username = body['username'][0]
+        user_name = body['user_name'][0]
         selected_url = body['text'][0]
         urlparse(selected_url)
     except KeyError:
@@ -117,7 +117,7 @@ def respond(event, context):
     data = {
         "selected_url": selected_url,
         "response_url": response_url,
-        "username": username,
+        "user_name": user_name,
         "user_id": user_id
     }
     handler = os.environ['INVALIDATE_HANDLER']
@@ -151,7 +151,7 @@ def invoke_handler(data, handler, correlation_id):
         return "Something went wrong."
     else:
         logging.info(json.dumps({'action': 'invoke handler', 'status': 'success', 'handler': handler}))
-    return "Request to invalidate {} received from {}...".format(data['selected_url'], data['username'])
+    return "Request to invalidate {} received from {}...".format(data['selected_url'], data['user_name'])
 
 
 def get_correlation_id(body=None, payload=None, event=None):
