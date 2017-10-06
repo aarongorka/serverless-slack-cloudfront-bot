@@ -221,6 +221,9 @@ def invalidate_path(cloudfront_id, path, correlation_id, session):
     logging.info(json.dumps({'invalidation': '{}'.format(invalidation['ResponseMetadata'])}))
     if invalidation['ResponseMetadata']['HTTPStatusCode'] == 201:
         response = "The invalidation for {} on distribution {} was successfully submitted.".format(path, cloudfront_id)
+    else:
+        response = "Didn't get a 201 response from CloudFront after submitting invalidation, something went wrong."
+        logging.exception(json.dumps({'action': 'submitting invalidation', 'status': 'failed', 'invalidation': '{}'.format(invalidation['ResponseMetadata'])}))
     return response
 
 
