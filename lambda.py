@@ -63,7 +63,7 @@ def post_message(message, response_url, correlation_id):
     except:
         pass
 
-    logging.info(json.dumps({'result': 'success!'}))
+    logging.info(json.dumps({'action': 'final result', 'result': 'success!'}))
 
 
 def respond(event, context):
@@ -183,7 +183,8 @@ def get_correlation_id(body=None, payload=None, event=None):
 def get_distributions(session):
     try:
         client = session.client('cloudfront')
-        dists = client.list_distributions()['DistributionList']['Items']
+        response = client.list_distributions()
+        dists = response['DistributionList']['Items']
     except:
         logging.exception(json.dumps({'action': 'list_distributions', 'status': 'failed'}))
         return None
@@ -217,7 +218,7 @@ def invalidate_path(cloudfront_id, path, correlation_id, session):
                 'Items': [path]
             },
             'CallerReference': correlation_id})
-    logging.info(json.dumps({'invalidation': '{}'.format(invalidation)}))
+    logging.info(json.dumps({'invalidation': '{}'.format(invalidation['ResponseMetadata'])}))
     if invalidation['ResponseMetadata']['HTTPStatusCode'] == 201:
         response = "The invalidation for {} on distribution {} was successfully submitted.".format(path, cloudfront_id)
     return response
@@ -239,16 +240,17 @@ def check_accounts_and_invalidate(accounts, hostname, path, correlation_id):
             pass  # probably okay to fail on an account or two
 
         distributions = get_distributions(session)
-        try:
-            cloudfront_id = select_distribution(hostname, distributions)
-        except:
-            logging.info(json.dumps({"action": "check account", "account": account, "result": "failed"}))
-            pass
+        if distributuions is not None:
+            try:
+                cloudfront_id = select_distribution(hostname, distributions)
+            except:
+                logging.info(json.dumps({"action": "check account", "account": account, "result": "failed"}))
+                pass
 
-        if cloudfront_id is not None:
-            located_account = account
-            logging.info(json.dumps({"action": "check account", "account": located_account, "result": "success"}))
-            break
+            if cloudfront_id is not None:
+                located_account = account
+                logging.info(json.dumps({"action": "check account", "account": located_account, "result": "success"}))
+                break
 
     if cloudfront_id is None:
         return "Could not find CloudFront distribution ID."
