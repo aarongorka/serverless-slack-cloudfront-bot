@@ -243,7 +243,7 @@ def check_accounts_and_invalidate(accounts, hostname, path, correlation_id):
             pass  # probably okay to fail on an account or two
 
         distributions = get_distributions(session)
-        if distributuions is not None:
+        if distributions is not None:
             try:
                 cloudfront_id = select_distribution(hostname, distributions)
             except:
