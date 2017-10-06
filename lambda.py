@@ -183,15 +183,19 @@ def get_correlation_id(body=None, payload=None, event=None):
 def get_distributions(session):
     try:
         client = session.client('cloudfront')
-        dists = client.list_distributions()
+        dists = client.list_distributions()['DistributionList']['Items']
     except:
         logging.exception(json.dumps({'action': 'list_distributions', 'status': 'failed'}))
         return None
     try:
-        logging.info(json.dumps({'action': 'getting distributions', 'distributions': '{}'.format(dists['DistributionList']['Items'])}))
-    except KeyError:
+        keys = ['Id', 'Aliases']
+        logging_dist = []
+        for dist in dists:
+            logging_dist.append({k: dist[k] for k in keys})
+        logging.info(json.dumps({'action': 'getting distributions', 'distributions': logging_dists}))
+    except:
         return None
-    return dists['DistributionList']['Items']
+    return dists
 
 
 def select_distribution(hostname, distributions):
