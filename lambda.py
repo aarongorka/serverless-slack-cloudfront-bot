@@ -181,8 +181,12 @@ def get_correlation_id(body=None, payload=None, event=None):
 
 
 def get_distributions(session):
-    client = session.client('cloudfront')
-    dists = client.list_distributions()
+    try:
+        client = session.client('cloudfront')
+        dists = client.list_distributions()
+    except:
+        logging.exception(json.dumps({'action': 'list_distributions', 'status': 'failed'}))
+        return None
     try:
         logging.info(json.dumps({'action': 'getting distributions', 'distributions': dists['DistributionList']['Items']}))
     except KeyError:
@@ -191,7 +195,11 @@ def get_distributions(session):
 
 
 def select_distribution(hostname, distributions):
-    cloudfront_id = [x['Id'] for x in distributions if hostname in x['Aliases']['Items']][0]
+    try:
+        cloudfront_id = [x['Id'] for x in distributions if hostname in x['Aliases']['Items']][0]
+    except:
+        logging.exception(json.dumps({'action': 'check', 'status': 'failed', 'distributions': distributions}))
+        return None
     return cloudfront_id
 
 
@@ -213,10 +221,19 @@ def invalidate_path(cloudfront_id, path, correlation_id, session):
 
 def check_accounts_and_invalidate(accounts, hostname, path, correlation_id):
     cloudfront_id = None
+    try:
+        role = os.environ['BOT_AWS_ROLE']
+    except KeyError:
+        return "The role used to check each account hasn't been specified."
     for account in accounts:
-        session = role_arn_to_session(
-            RoleArn="arn:aws:iam::{}:role/{}".format(account, os.environ.get('BOT_AWS_ROLE')),
-            RoleSessionName=correlation_id)
+        try:
+            session = role_arn_to_session(
+                RoleArn="arn:aws:iam::{}:role/{}".format(account, role),
+                RoleSessionName=correlation_id)
+        except:
+            logging.exception(json.dumps({'action': 'assume role', 'status': 'failed', 'account': account, 'role': role}))
+            pass  # probably okay to fail on an account or two
+
         distributions = get_distributions(session)
         try:
             cloudfront_id = select_distribution(hostname, distributions)
