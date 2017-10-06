@@ -240,8 +240,10 @@ def check_accounts_and_invalidate(accounts, hostname, path, correlation_id):
         except:
             logging.info(json.dumps({"action": "check account", "account": account, "result": "failed"}))
             pass
+
         if cloudfront_id is not None:
-            logging.info(json.dumps({"action": "check account", "account": account, "result": "success"}))
+            located_account = account
+            logging.info(json.dumps({"action": "check account", "account": located_account, "result": "success"}))
             break
 
     if cloudfront_id is None:
@@ -250,7 +252,8 @@ def check_accounts_and_invalidate(accounts, hostname, path, correlation_id):
     try:
         response = invalidate_path(cloudfront_id, path, correlation_id, session)
     except:
-        return "Failed"
+        logging.exception(json.dumps({'action': 'invalidate path', 'status': 'failed', 'account': located_account, 'cloudfront_id': cloudfront_id, 'session': '{}'.format(session)}))
+        return "Found CloudFront ID {} in account {} but the invalidation failed.".format(cloudfront_id, located_account)
 
     return response
 
