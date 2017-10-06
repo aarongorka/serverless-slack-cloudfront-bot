@@ -180,22 +180,23 @@ def get_correlation_id(body=None, payload=None, event=None):
     return correlation_id
 
 
-def get_distributions(session):
+def get_distributions(session, account):
     try:
         client = session.client('cloudfront')
         response = client.list_distributions()
         dists = response['DistributionList']['Items']
-    except:
-        logging.exception(json.dumps({'action': 'list_distributions', 'status': 'failed'}))
+    except KeyError:
+        logging.warning(json.dumps({'action': 'getting distributions', 'status': 'failed', 'distributions': None, 'account': account}))
         return None
     try:
         keys = ['Id', 'Aliases']
-        logging_dist = []
+        logging_dists = []
         for dist in dists:
-            logging_dist.append({k: dist[k] for k in keys})
-        logging.info(json.dumps({'action': 'getting distributions', 'distributions': logging_dists}))
+            logging_dists.append({k: dist[k] for k in keys})
+        logging.info(json.dumps({'action': 'getting distributions', 'distributions': logging_dists, 'account': account}))
     except:
-        return None
+        logging.exception(json.dumps({'action': 'logging distributions', 'status': 'failed'}))
+        pass
     return dists
 
 
@@ -241,8 +242,10 @@ def check_accounts_and_invalidate(accounts, hostname, path, correlation_id):
         except:
             logging.exception(json.dumps({'action': 'assume role', 'status': 'failed', 'account': account, 'role': role}))
             pass  # probably okay to fail on an account or two
+        else:
+            logging.info(json.dumps({'action': 'assume role', 'status': 'success', 'account': account, 'role': role}))
 
-        distributions = get_distributions(session)
+        distributions = get_distributions(session, account)
         if distributions is not None:
             try:
                 cloudfront_id = select_distribution(hostname, distributions)
