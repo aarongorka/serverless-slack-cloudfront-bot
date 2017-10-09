@@ -29,7 +29,7 @@ deploy: $(ENV_RM_REQUIRED) $(DOTENV_TARGET) $(ASSUME_REQUIRED)
 	docker-compose run $(USER_SETTINGS) --rm serverless make _deploy
 
 unitTest: $(ASSUME_REQUIRED) $(DOTENV_TARGET)
-	docker-compose run $(USER_SETTINGS) --rm make _test
+	docker-compose run $(USER_SETTINGS) --rm lambda slack_cloudfront_bot.unit_test
 
 smokeTest: $(DOTENV_TARGET) $(ASSUME_REQUIRED)
 	docker-compose run $(USER_SETTINGS) --rm serverless make _smokeTest
@@ -87,7 +87,7 @@ $(PACKAGE_DIR)/.piprun: requirements.txt
 _build: $(ARTIFACT_PATH)
 
 $(ARTIFACT_PATH): $(DOTENV_TARGET) *.py $(PACKAGE_DIR)/.piprun
-	cp lambda.py $(PACKAGE_DIR)
+	cp *.py $(PACKAGE_DIR)
 	cd $(PACKAGE_DIR) && zip -rq ../package .
 
 run/lambda.py: $(ARTIFACT_PATH)
