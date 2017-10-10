@@ -35,7 +35,7 @@ def invalidate(event, context):
         if '*' in selected_url:
             selected_url = selected_url.replace('*', 'WILDCARD')  # urlparse doesn't understand wildcards, so just replace it with a string for now
         if not urlparse(selected_url).scheme:
-           selected_url = "//" + selected_url  # https://stackoverflow.com/questions/6344993/problems-parsing-an-url-with-python
+            selected_url = "//" + selected_url  # https://stackoverflow.com/questions/6344993/problems-parsing-an-url-with-python
         o = urlparse(selected_url)
         hostname = o.hostname
         path = o.path
