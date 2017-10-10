@@ -34,6 +34,8 @@ def invalidate(event, context):
     try:
         if '*' in selected_url:
             selected_url = selected_url.replace('*', 'WILDCARD')  # urlparse doesn't understand wildcards, so just replace it with a string for now
+        if not urlparse(selected_url).scheme:
+           selected_url = "//" + selected_url  # https://stackoverflow.com/questions/6344993/problems-parsing-an-url-with-python
         o = urlparse(selected_url)
         hostname = o.hostname
         path = o.path
@@ -311,7 +313,7 @@ def select_distribution(hostname, distributions):
     try:
         cloudfront_id = [x['Id'] for x in distributions if hostname in x['Aliases']['Items']][0]
     except:
-        logging.exception(json.dumps({'action': 'check', 'status': 'failed', 'distributions': '{}'.format(distributions)}))
+        logging.exception(json.dumps({'action': 'check', 'status': 'failed', 'hostname': hostname, 'distributions': '{}'.format(distributions)}))
         return None
     return cloudfront_id
 
@@ -370,7 +372,7 @@ def check_accounts_and_invalidate(accounts, hostname, path, correlation_id):
                 break
 
     if cloudfront_id is None:
-        return "Could not find CloudFront distribution ID."
+        return "Could not find CloudFront distribution with CNAME of `{}`.".format(hostname)
 
     try:
         response = invalidate_path(cloudfront_id, path, correlation_id, session)
