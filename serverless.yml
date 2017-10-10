@@ -57,9 +57,9 @@ custom:
 
 functions:
   invalidate:
-    handler: lambda.invalidate
+    handler: slack_cloudfront_bot.invalidate
   respond:
-    handler: lambda.respond
+    handler: slack_cloudfront_bot.respond
     events:
       - http: POST respond
 
