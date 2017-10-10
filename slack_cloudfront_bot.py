@@ -289,7 +289,7 @@ def get_distributions(session, account):
         for dist in dists:
             logging_dists.append({k: dist[k] for k in keys})
         logging.info(json.dumps({'action': 'getting distributions', 'distributions': logging_dists, 'account': account}))
-        logging.debug(json.dumps({'action': 'getting distributions', 'distributions': dists, 'account': account}))
+        logging.debug(json.dumps({'action': 'getting distributions', 'distributions': '{}'.format(dists), 'account': account}))
 
     except:
         logging.exception(json.dumps({'action': 'logging distributions', 'status': 'failed'}))
