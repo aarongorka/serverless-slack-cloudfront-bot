@@ -39,7 +39,7 @@ def invalidate(event, context):
     hostname = o.hostname
     path = o.path
     try:
-        message = check_accounts_and_invalidate(accounts, hostname, path, wildcard, correlation_id)
+        message = check_accounts_and_invalidate(accounts, hostname, path, correlation_id)
     except:
         logging.exception(json.dumps({'action': 'invalidate', 'status': 'failed'}))
         message = "An unknown error occurred, please check the logs."
