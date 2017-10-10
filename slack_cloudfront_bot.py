@@ -311,7 +311,7 @@ def select_distribution(hostname, distributions):
     try:
         cloudfront_id = [x['Id'] for x in distributions if hostname in x['Aliases']['Items']][0]
     except:
-        logging.exception(json.dumps({'action': 'check', 'status': 'failed', 'distributions': distributions}))
+        logging.exception(json.dumps({'action': 'check', 'status': 'failed', 'distributions': '{}'.format(distributions)}))
         return None
     return cloudfront_id
 
