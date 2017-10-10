@@ -31,13 +31,18 @@ def invalidate(event, context):
     logging.debug(json.dumps({'response_url': response_url, "selected_url": selected_url}))
     correlation_id = get_correlation_id(event=event)
     accounts = os.environ.get('BOT_AWS_ACCOUNTS').split(',')
-    wildcard = False
-    wildcard = '*' in selected_url
-    if wildcard:
-        selected_url = selected_url.replace('*', 'WILDCARD')  # urlparse doesn't understand wildcards, so just replace it with a string for now
-    o = urlparse(selected_url)
-    hostname = o.hostname
-    path = o.path
+    try:
+        if '*' in selected_url:
+            selected_url = selected_url.replace('*', 'WILDCARD')  # urlparse doesn't understand wildcards, so just replace it with a string for now
+        o = urlparse(selected_url)
+        hostname = o.hostname
+        path = o.path
+    except:
+        logging.exception(json.dumps({'parse url': 'invalidate', 'status': 'failed'}))
+        message = "Failed to parse the provided URL."
+        pass
+    else:
+        logging.info(json.dumps({'action': 'parse url', 'hostname': hostname, 'path': path}))
     try:
         message = check_accounts_and_invalidate(accounts, hostname, path, correlation_id)
     except:
@@ -284,6 +289,8 @@ def get_distributions(session, account):
         for dist in dists:
             logging_dists.append({k: dist[k] for k in keys})
         logging.info(json.dumps({'action': 'getting distributions', 'distributions': logging_dists, 'account': account}))
+        logging.debug(json.dumps({'action': 'getting distributions', 'distributions': dists, 'account': account}))
+
     except:
         logging.exception(json.dumps({'action': 'logging distributions', 'status': 'failed'}))
         pass
@@ -354,7 +361,7 @@ def check_accounts_and_invalidate(accounts, hostname, path, correlation_id):
             try:
                 cloudfront_id = select_distribution(hostname, distributions)
             except:
-                logging.info(json.dumps({"action": "check account", "account": account, "result": "failed"}))
+                logging.exception(json.dumps({"action": "check account", "account": account, "result": "failed"}))
                 pass
 
             if cloudfront_id is not None:
