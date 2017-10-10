@@ -42,7 +42,7 @@ unzip: $(DOTENV_TARGET) $(ARTIFACT_PATH)
 
 styleTest: $(DOTENV_TARGET)
 	docker-compose run $(USER_SETTINGS) --rm virtualenv make _unzip
-	docker-compose run $(USER_SETTINGS) --rm pep8 --ignore E501 *.py
+	docker-compose run $(USER_SETTINGS) --rm pep8 --ignore 'E501,E128' *.py
 
 run: $(DOTENV_TARGET)
 	docker-compose run $(USER_SETTINGS) --rm lambda lambda.invalidate
@@ -51,7 +51,7 @@ run: $(DOTENV_TARGET)
 assumeRole: $(DOTENV_TARGET)
 	docker run --rm -e "AWS_ACCOUNT_ID" -e "AWS_ROLE" amaysim/aws:1.1.1 assume-role.sh >> .env
 
-test: $(DOTENV_TARGET) styleTest
+test: $(DOTENV_TARGET) styleTest unitTest
 
 shell: $(DOTENV_TARGET)
 	docker-compose run $(USER_SETTINGS) --rm virtualenv sh
