@@ -310,6 +310,10 @@ def select_distribution(hostname, distributions):
 
 
 def invalidate_path(cloudfront_id, path, correlation_id, session):
+    if 'WILDCARD' in path:
+        logging.debug(json.dumps({'action': 'replace wildcard placeholder start', 'path': path}))
+        path.replace('WILDCARD', '*')
+        logging.debug(json.dumps({'action': 'replace wildcard placeholder finish', 'path': path}))
     client = session.client('cloudfront')
     invalidation = client.create_invalidation(
         DistributionId=cloudfront_id,
