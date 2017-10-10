@@ -205,18 +205,18 @@ def invoke_handler(data, handler, correlation_id):
 
 def get_correlation_id(body=None, payload=None, event=None):
     correlation_id = None
-    if event is not None:
+    if event:
         try:
             correlation_id = event['headers']['X-Amzn-Trace-Id'].split('=')[1]
         except:
             pass
 
-    if body is not None:
+    if body:
         try:
             correlation_id = body['trigger_id'][0]
         except:
             pass
-    elif payload is not None:
+    elif payload:
         try:
             correlation_id = payload['trigger_id']
         except:
@@ -357,14 +357,14 @@ def check_accounts_and_invalidate(accounts, hostname, path, correlation_id):
             logging.info(json.dumps({'action': 'assume role', 'status': 'success', 'account': account, 'role': role}))
 
         distributions = get_distributions(session, account)
-        if distributions is not None:
+        if distributions:
             try:
                 cloudfront_id = select_distribution(hostname, distributions)
             except:
                 logging.exception(json.dumps({"action": "check account", "account": account, "result": "failed"}))
                 pass
 
-            if cloudfront_id is not None:
+            if cloudfront_id:
                 located_account = account
                 logging.info(json.dumps({"action": "check account", "account": located_account, "result": "success"}))
                 break
