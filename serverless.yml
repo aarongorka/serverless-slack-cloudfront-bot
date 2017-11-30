@@ -9,6 +9,9 @@ provider:
   runtime: python3.6
   stage: ${env:ENV}
   memorySize: 128
+  versionFunctions: false
+  deploymentBucket:
+    name: amaysim-serverless-deployments-${env:AWS_ACCOUNT_ID}-${env:AWS_REGION}
   timeout: 60
   region: ${env:AWS_REGION}
   variableSyntax: "\\${(?!AWS::)((?:self|env):[ :a-zA-Z0-9._,\\-\\/\\(\\)]+?)}"
@@ -43,7 +46,7 @@ custom:
       insufficientData: ${env:OPS_GENIE_MAJOR_SNS_ARN}
     definitions:
       functionErrors:
-        threshold: 10
+        threshold: 1
         period: 900
       functionDuration:
         threshold: 60000
