@@ -188,9 +188,9 @@ def respond(event, context):
 
 def invoke_handler(data, handler, correlation_id):
     try:
-        config = botocore.config.Config(connect_timeout=300, read_timeout=300)
+        config = botocore.config.Config(connect_timeout=300, read_timeout=300, retries={'max_attempts':0})
         client = boto3.client('lambda', config=config)
-        client.meta.events._unique_id_handlers['retry-config-lambda']['handler']._checker.__dict__['_max_attempts'] = 0
+        # client.meta.events._unique_id_handlers['retry-config-lambda']['handler']._checker.__dict__['_max_attempts'] = 0
         resp = client.invoke(
             FunctionName=handler,
             InvocationType='Event',
