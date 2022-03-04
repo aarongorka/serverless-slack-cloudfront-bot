@@ -88,6 +88,7 @@ resources:
       Properties:
         CertificateArn: ${env:AWS_ACM_CERTIFICATE}
         DomainName: ${env:DOMAIN_NAME}
+        SecurityPolicy: TLS_1_2
     BasePathMapping:
       Type: "AWS::ApiGateway::BasePathMapping"
       Properties:
