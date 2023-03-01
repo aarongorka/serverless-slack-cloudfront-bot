@@ -24,6 +24,7 @@ provider:
         Fn::Sub: "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${env:ENV}-invalidate"
   stackTags:
     FRAMEWORK: serverless
+    exclude-api-from-header-check: true
   environment:
     ENV: ${env:ENV}
     LOGLEVEL: ${env:LOGLEVEL}
